@@ -52,25 +52,24 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" id="e0M-ob-MLd">
-                        <barButtonItem key="leftBarButtonItem" style="plain" id="4Az-s8-wki">
-                            <segmentedControl key="customView" opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" selectedSegmentIndex="0" id="Aau-NG-Wsc">
-                                <rect key="frame" x="16" y="5.5" width="167" height="33"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <segments>
-                                    <segment title="Title"/>
-                                    <segment title="Date/Time"/>
-                                </segments>
-                            </segmentedControl>
-                        </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" title="Item" image="plus" catalog="system" id="se2-sr-qhz">
+                        <barButtonItem key="leftBarButtonItem" title="Sort By Title" id="pOa-dh-PVO">
                             <connections>
-                                <segue destination="deg-xr-csY" kind="show" id="UAa-IE-3Co"/>
+                                <action selector="sortByTitle:" destination="45V-2c-GCV" id="bqc-pb-6h9"/>
                             </connections>
                         </barButtonItem>
+                        <rightBarButtonItems>
+                            <barButtonItem title="Item" image="plus" catalog="system" id="se2-sr-qhz">
+                                <connections>
+                                    <segue destination="deg-xr-csY" kind="show" id="UAa-IE-3Co"/>
+                                </connections>
+                            </barButtonItem>
+                            <barButtonItem title="Sort By Date/Time" id="Snk-tD-gf6"/>
+                        </rightBarButtonItems>
                     </navigationItem>
                     <connections>
                         <outlet property="searchBar" destination="Jdq-gv-AlW" id="ZNr-Xn-8Id"/>
-                        <outlet property="segmentControl" destination="4Az-s8-wki" id="y64-J3-jWP"/>
+                        <outlet property="sortByDate" destination="Snk-tD-gf6" id="eE0-eX-evg"/>
+                        <outlet property="sortByTitle" destination="pOa-dh-PVO" id="FWX-jB-8ZU"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="v8r-La-LhJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

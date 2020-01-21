@@ -17,5 +17,6 @@ class Task{
     
     var title: String
     var days: Int
+    var counter = 0
     
 }
