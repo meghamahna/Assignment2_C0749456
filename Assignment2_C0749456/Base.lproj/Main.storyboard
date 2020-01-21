@@ -44,6 +44,9 @@
                                         </label>
                                     </subviews>
                                 </tableViewCellContentView>
+                                <connections>
+                                    <segue destination="deg-xr-csY" kind="show" id="rU8-Sa-flV"/>
+                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>
@@ -63,7 +66,11 @@
                                     <segue destination="deg-xr-csY" kind="show" id="UAa-IE-3Co"/>
                                 </connections>
                             </barButtonItem>
-                            <barButtonItem title="Sort By Date/Time" id="Snk-tD-gf6"/>
+                            <barButtonItem title="Sort By Date/Time" id="Snk-tD-gf6">
+                                <connections>
+                                    <action selector="sortByDate:" destination="45V-2c-GCV" id="8Lo-p7-VOe"/>
+                                </connections>
+                            </barButtonItem>
                         </rightBarButtonItems>
                     </navigationItem>
                     <connections>
@@ -138,4 +145,7 @@
     <resources>
         <image name="plus" catalog="system" width="64" height="56"/>
     </resources>
+    <inferredMetricsTieBreakers>
+        <segue reference="UAa-IE-3Co"/>
+    </inferredMetricsTieBreakers>
 </document>

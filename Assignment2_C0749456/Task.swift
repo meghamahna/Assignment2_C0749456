@@ -10,13 +10,19 @@ import Foundation
 
 class Task{
     
-    init(title: String, days: Int) {
+    init(title: String, days: Int, date: String) {
         self.title = title
         self.days = days
+        self.date = date
     }
     
+    
+     
+    
+   
     var title: String
     var days: Int
+    var date: String
     var counter = 0
     
 }

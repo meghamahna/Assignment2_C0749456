@@ -22,8 +22,9 @@ class TaskViewController: UIViewController {
 
         // Do any additional setup after loading the view.
         
-       // loadCoreData()
+        loadCoreData()
         saveCoreData()
+        
         NotificationCenter.default.addObserver(self, selector: #selector(saveCoreData), name: UIApplication.willResignActiveNotification, object: nil)
         
     }
@@ -32,9 +33,18 @@ class TaskViewController: UIViewController {
         
         let title = dataItems[0].text ?? ""
         let days = Int(dataItems[1].text ?? "0") ?? 0
-                   
+
+        let date = NSDate()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEE, MMM, dd HH:mm:ss"
+        
+//        let hourFormatter = DateFormatter()
+//        hourFormatter.dateFormat = "h:mm a"
+               
+       let dateString = dateFormatter.string(from: date as Date)
+      // let hourString = hourFormatter.string(from: date as Date)
                 
-        let task = Task(title: title, days: days)
+        let task = Task(title: title, days: days, date: dateString)
         tasks?.append(task)
                    for textField in dataItems {
                        textField.text = ""
@@ -57,6 +67,10 @@ class TaskViewController: UIViewController {
                                let taskEntity = NSEntityDescription.insertNewObject(forEntityName: "TaskModel", into: ManagedContext)
                               taskEntity.setValue(task.title, forKey: "title")
                               taskEntity.setValue(task.days, forKey: "days")
+                              taskEntity.setValue(task.counter, forKey: "counter")
+                              taskEntity.setValue(task.date, forKey: "date")
+                              taskEntity.setValue(task.counter, forKey: "counter")
+                             
                
                                print("\(task.days)")
                                //save  context
@@ -90,8 +104,10 @@ class TaskViewController: UIViewController {
                   
                      let days = result.value(forKey: "days") as! Int
                     
+                    let counter = result.value(forKey: "counter") as! Int
+                    let date = result.value(forKey: "date") as! String
                      
-                     tasks?.append(Task(title: title, days: days))
+                    tasks?.append(Task(title: title, days: days, date: date))
                     
                  }
              }

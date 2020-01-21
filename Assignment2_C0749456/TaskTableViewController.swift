@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class TaskTableViewController: UITableViewController, UISearchBarDelegate, UISearchDisplayDelegate {
+class TaskTableViewController: UITableViewController {
     
     @IBOutlet weak var sortByTitle: UIBarButtonItem!
     @IBOutlet weak var sortByDate: UIBarButtonItem!
@@ -18,15 +18,16 @@ class TaskTableViewController: UITableViewController, UISearchBarDelegate, UISea
    
     
     var tasks: [Task]?
-    var items: [NSManagedObject] = []
+    var filteredData: [Task]?
     var addDay = "0"
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        loadCoreData()
+        filteredData = tasks
         searchBar.delegate = self
-        self.loadCoreData()
-        //self.LoadData()
+        
+    
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
@@ -46,16 +47,16 @@ class TaskTableViewController: UITableViewController, UISearchBarDelegate, UISea
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return tasks?.count ?? 0
+        return filteredData?.count ?? 0
     }
 
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-               let task = tasks![indexPath.row]
+               let task = filteredData![indexPath.row]
                let cell = tableView.dequeueReusableCell(withIdentifier: "taskCell")
                cell?.textLabel?.text = task.title
-               cell?.detailTextLabel?.text = "\(task.days) days + \(task.counter) completed days"
+        cell?.detailTextLabel?.text = "\(task.days) days + \(task.counter) completed days + \(task.date)"
         
                 if tasks?[indexPath.row].counter == self.tasks?[indexPath.row].days{
                     cell?.backgroundColor = UIColor.green
@@ -89,32 +90,7 @@ class TaskTableViewController: UITableViewController, UISearchBarDelegate, UISea
                                 if self.tasks?[indexPath.row].counter == self.tasks?[indexPath.row].days{
                                     
                                     print("equal")
-//                                    
-//                                    let appDelegate = UIApplication.shared.delegate as! AppDelegate
-//                                               let ManagedContext = appDelegate.persistentContainer.viewContext
-//                                               let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "TaskModel")
-//                                        do{
-//                                            let test = try ManagedContext.fetch(fetchRequest)
-//                                            let item = test[indexPath.row] as!NSManagedObject
-//                                            item.setValue("", forKey: "title")
-//                                            item.setValue("", forKey: "counter")
-//                                            //self.tasks?.remove(at: indexPath.row)
-//                                           // ManagedContext.delete(item)
-//                                            tableView.reloadData()
-//                                            
-//                                            do{
-//                                                        try ManagedContext.save()
-//                                                }
-//                                        
-//                                            catch{
-//                                                               print(error)
-//                                                           }
-//                                        }
-//                                        catch{
-//                                            print(error)
-//                                        }
-                                               
-                                            
+
 
                                     }
                                     
@@ -186,31 +162,6 @@ class TaskTableViewController: UITableViewController, UISearchBarDelegate, UISea
         }    
     }
     
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // Get the new view controller using segue.destination.
@@ -241,9 +192,12 @@ class TaskTableViewController: UITableViewController, UISearchBarDelegate, UISea
                      let title = result.value(forKey:"title") as! String
 
                      let days = result.value(forKey: "days") as! Int
+                     let counter = result.value(forKey: "counter") as! Int
+                     let date = result.value(forKey: "date") as? String
+                     
 
 
-                     tasks?.append(Task(title: title, days: days))
+                    tasks?.append(Task(title: title, days: days, date: date ?? ""))
                      tableView.reloadData()
                  }
              }
@@ -279,54 +233,6 @@ class TaskTableViewController: UITableViewController, UISearchBarDelegate, UISea
         tableView.reloadData()
     }
     
-//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-//        if !searchText.isEmpty {
-//            var predicate: NSPredicate = NSPredicate()
-//            predicate = NSPredicate(format: "title contains[c] '\(searchText)'")
-//            guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
-//            let ManagedContext = appDelegate.persistentContainer.viewContext
-//            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName:"TaskModel")
-//            fetchRequest.predicate = predicate
-//            do {
-//                tasks = try ManagedContext.fetch(fetchRequest) as? [Task]
-//            } catch let error as NSError {
-//                print("Could not fetch. \(error)")
-//            }
-//        }
-//        tableView.reloadData()
-//    }
-    
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if searchText != ""{
-            var predicate: NSPredicate = NSPredicate()
-            predicate = NSPredicate(format: "title contains %@", "\(searchText)")
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let ManagedContext = appDelegate.persistentContainer.viewContext
-            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "TaskModel")
-            fetchRequest.predicate = predicate
-            do{
-                tasks = try ManagedContext.fetch(fetchRequest) as? [Task]
-            }
-            catch{
-                print("error")
-            }
-        }
-        else{
-            
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let ManagedContext = appDelegate.persistentContainer.viewContext
-            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "TaskModel")
-        
-            do{
-                tasks = try ManagedContext.fetch(fetchRequest) as? [Task]
-            }
-            catch{
-                print("error")
-            }
-            
-        }
-        tableView.reloadData()
-    }
 
     @IBAction func sortByTitle(_ sender: UIBarButtonItem) {
         
@@ -336,5 +242,23 @@ class TaskTableViewController: UITableViewController, UISearchBarDelegate, UISea
     }
     
     
+    @IBAction func sortByDate(_ sender: UIBarButtonItem) {
+        
+     let itemSort = self.tasks!
+     self.tasks! = itemSort.sorted { $0.date < $1.date }
+        self.tableView.reloadData()
+    }
     
+}
+
+extension TaskTableViewController: UISearchBarDelegate{
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        
+        filteredData = searchText.isEmpty ? tasks : tasks?.filter({ (item: Task) -> Bool in
+            return item.title.range(of: searchText, options: .caseInsensitive) != nil
+        })
+        
+        tableView.reloadData()
+    }
 }
