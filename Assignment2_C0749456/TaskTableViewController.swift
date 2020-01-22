@@ -20,11 +20,13 @@ class TaskTableViewController: UITableViewController {
     var tasks: [Task]?
     var filteredData: [Task]?
     var addDay = "0"
+    var curIndex = -1
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         loadCoreData()
-        filteredData = tasks
+        filteredData = tasks!
         searchBar.delegate = self
         
     
@@ -58,7 +60,7 @@ class TaskTableViewController: UITableViewController {
                cell?.textLabel?.text = task.title
         cell?.detailTextLabel?.text = "\(task.days) days + \(task.counter) completed days + \(task.date)"
         
-                if tasks?[indexPath.row].counter == self.tasks?[indexPath.row].days{
+                if task.counter == task.days{
                     cell?.backgroundColor = UIColor.green
                     cell?.textLabel?.text = "Completed"
                     cell?.detailTextLabel?.text = ""
@@ -69,7 +71,8 @@ class TaskTableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
             let Addaction = UITableViewRowAction(style: .normal, title: "Add Day") { (rowaction, indexPath) in
-                print("add day clicked")
+                print("Add day")
+                
                 let alertcontroller = UIAlertController(title: "Add Day", message: "Enter a day for this task", preferredStyle: .alert)
                                
                                alertcontroller.addTextField { (textField ) in
@@ -85,9 +88,9 @@ class TaskTableViewController: UITableViewController {
                                let AddItemAction = UIAlertAction(title: "Add Item", style: .default){
                                    (action) in
                                 let count = alertcontroller.textFields?.first?.text
-                                self.tasks?[indexPath.row].counter += Int(count!) ?? 0
+                                self.filteredData?[indexPath.row].counter += Int(count!) ?? 0
                                 
-                                if self.tasks?[indexPath.row].counter == self.tasks?[indexPath.row].days{
+                                if self.filteredData?[indexPath.row].counter == self.filteredData?[indexPath.row].days{
                                     
                                     print("equal")
 
@@ -117,9 +120,10 @@ class TaskTableViewController: UITableViewController {
                        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "TaskModel")
                 do{
                     let test = try ManagedContext.fetch(fetchRequest)
-                    let item = test[indexPath.row] as!NSManagedObject
+                    let item = test[indexPath.row] as? NSManagedObject
+                    self.filteredData?.remove(at: indexPath.row)
                     self.tasks?.remove(at: indexPath.row)
-                    ManagedContext.delete(item)
+                    ManagedContext.delete(item!)
                     tableView.reloadData()
                     
                     do{
@@ -171,6 +175,14 @@ class TaskTableViewController: UITableViewController {
             detailView.taskTable = self
             detailView.tasks = tasks
             
+            if let tableViewCell = sender as? UITableViewCell{
+                if let index = tableView.indexPath(for: tableViewCell)?.row{
+                    detailView.titleString = filteredData![index].title
+                    detailView.dayString = String(filteredData![index].days)
+                    curIndex = index
+                }
+            }
+            
        }
     
     }
@@ -190,9 +202,8 @@ class TaskTableViewController: UITableViewController {
              if results is [NSManagedObject]{
                  for result in results as! [NSManagedObject]{
                      let title = result.value(forKey:"title") as! String
-
                      let days = result.value(forKey: "days") as! Int
-                     let counter = result.value(forKey: "counter") as! Int
+                    // let counter = result.value(forKey: "counter") as! Int
                      let date = result.value(forKey: "date") as? String
                      
 
@@ -205,47 +216,29 @@ class TaskTableViewController: UITableViewController {
              print(error)
          }
          print(tasks!.count )
+        tableView.reloadData()
     }
     
-    func LoadData(){
-        
-        //create an instance of app delegate
-               let appDelegate = UIApplication.shared.delegate as! AppDelegate
-               
-               // context
-               let ManagedContext = appDelegate.persistentContainer.viewContext
-        
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "TaskModel")
-        
-        do{
-            tasks = try ManagedContext.fetch(fetchRequest) as? [Task]
-            self.tableView.reloadData()
-            
-        }catch
-        {
-            print("error")
-        }
-
-    }
+   
     
     func updateText(taskArray: [Task]){
-        tasks = taskArray
+        self.tasks = taskArray
         tableView.reloadData()
     }
     
 
     @IBAction func sortByTitle(_ sender: UIBarButtonItem) {
         
-        let itemSort = self.tasks!
-                   self.tasks! = itemSort.sorted { $0.title < $1.title }
+        let itemSort = self.filteredData!
+                   self.filteredData! = itemSort.sorted { $0.title < $1.title }
                       self.tableView.reloadData()
     }
     
     
     @IBAction func sortByDate(_ sender: UIBarButtonItem) {
         
-     let itemSort = self.tasks!
-     self.tasks! = itemSort.sorted { $0.date < $1.date }
+     let itemSort = self.filteredData!
+     self.filteredData! = itemSort.sorted { $0.date < $1.date }
         self.tableView.reloadData()
     }
     
@@ -259,6 +252,11 @@ extension TaskTableViewController: UISearchBarDelegate{
             return item.title.range(of: searchText, options: .caseInsensitive) != nil
         })
         
+        tableView.reloadData()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        filteredData = tasks!
         tableView.reloadData()
     }
 }

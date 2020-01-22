@@ -14,6 +14,8 @@ class TaskViewController: UIViewController {
     var tasks: [Task]?
     
     weak var taskTable: TaskTableViewController?
+    var titleString: String?
+    var dayString: String?
     
     @IBOutlet var dataItems: [UITextField]!
 
@@ -21,11 +23,11 @@ class TaskViewController: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        
-        loadCoreData()
+    
+        //loadCoreData()
         saveCoreData()
         
-        NotificationCenter.default.addObserver(self, selector: #selector(saveCoreData), name: UIApplication.willResignActiveNotification, object: nil)
+        //NotificationCenter.default.addObserver(self, selector: #selector(saveCoreData), name: UIApplication.willResignActiveNotification, object: nil)
         
     }
     
@@ -43,13 +45,36 @@ class TaskViewController: UIViewController {
                
        let dateString = dateFormatter.string(from: date as Date)
       // let hourString = hourFormatter.string(from: date as Date)
-                
-        let task = Task(title: title, days: days, date: dateString)
-        tasks?.append(task)
-                   for textField in dataItems {
-                       textField.text = ""
-                       textField.resignFirstResponder()
-                   }
+              
+    let task = Task(title: title, days: days, date: dateString)
+
+        
+    if tasks != nil && taskTable?.curIndex == -1{
+            
+            
+            tasks?.append(task)
+                       for textField in dataItems {
+                           textField.text = ""
+                           textField.resignFirstResponder()
+                       }
+        }
+        
+    else if taskTable?.curIndex != -1 && tasks != nil{
+            
+            tasks![taskTable!.curIndex].title = title
+            tasks![taskTable!.curIndex].days = days
+            
+            let indexPath = IndexPath(item: taskTable!.curIndex, section: 0)
+            taskTable?.tableView.reloadRows(at: [indexPath], with: .none)
+            taskTable?.curIndex = -1
+        
+        for textField in dataItems {
+            textField.text = ""
+            textField.resignFirstResponder()
+        }
+            
+        }
+        
     }
     
     @objc func saveCoreData(){
